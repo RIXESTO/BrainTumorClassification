@@ -1,0 +1,19 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.DS_Store
+
+# Virtual & Conda Environments
+venv/
+env/
+ENV/
+.env
+ML_venv/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
