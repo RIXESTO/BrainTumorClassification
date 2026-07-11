@@ -82,6 +82,12 @@ class GradCAM:
             img_array = np.expand_dims(img_array, axis=0)
         img_tensor = tf.cast(img_array, tf.float32)
 
+        # Apply backbone-specific preprocessing scaling
+        if config.DEFAULT_BACKBONE == 'Xception':
+            img_tensor = tf.keras.applications.xception.preprocess_input(img_tensor)
+        elif config.DEFAULT_BACKBONE == 'ResNet50V2':
+            img_tensor = tf.keras.applications.resnet_v2.preprocess_input(img_tensor)
+
         with tf.GradientTape() as tape:
             conv_outputs, predictions = self.grad_model(img_tensor, training=False)
             if class_index is None:
