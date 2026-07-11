@@ -54,7 +54,7 @@ def get_data_loaders(config, val_split=0.2):
     # Note: Applying .shuffle() AFTER .cache() on train_ds ensures that on every training epoch,
     # the cached mini-batches are presented in a freshly randomized order.
     AUTOTUNE = tf.data.AUTOTUNE
-    train_ds = train_ds.cache().shuffle(buffer_size=1000, seed=config.SEED).prefetch(buffer_size=AUTOTUNE)
+    train_ds = train_ds.cache().shuffle(buffer_size=1000).prefetch(buffer_size=AUTOTUNE)
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
     test_ds = test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
@@ -67,9 +67,11 @@ def get_augmentation_layer():
     """
     data_augmentation = tf.keras.Sequential([
         tf.keras.layers.RandomFlip("horizontal"),
-        tf.keras.layers.RandomRotation(0.08),    # ~15 degree subtle tilt
-        tf.keras.layers.RandomZoom(0.1),        # Slight scale variation
-        tf.keras.layers.RandomContrast(0.1)     # Slight lighting variation across MRI machines
+        tf.keras.layers.RandomRotation(0.10),       # ~18 degree tilt
+        tf.keras.layers.RandomZoom(0.15),            # 15% scale variation
+        tf.keras.layers.RandomTranslation(0.05, 0.05),  # Small positional shifts
+        tf.keras.layers.RandomContrast(0.15),        # MRI scanner variability
+        tf.keras.layers.RandomBrightness(0.2),       # Intensity variability matching 99% notebook
     ], name="mri_data_augmentation")
     return data_augmentation
 

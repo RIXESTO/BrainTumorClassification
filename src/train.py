@@ -36,14 +36,14 @@ def run_two_stage_training(epochs_warmup=None, epochs_finetune=None):
     )
     early_stop_cb = tf.keras.callbacks.EarlyStopping(
         monitor='val_loss',
-        patience=5,
+        patience=8,
         restore_best_weights=True,
         verbose=1
     )
     reduce_lr_cb = tf.keras.callbacks.ReduceLROnPlateau(
         monitor='val_loss',
         factor=0.5,
-        patience=2,
+        patience=3,
         min_lr=1e-7,
         verbose=1
     )
@@ -62,7 +62,7 @@ def run_two_stage_training(epochs_warmup=None, epochs_finetune=None):
     model = unfreeze_backbone_for_finetuning(
         model, 
         backbone, 
-        num_layers_to_unfreeze=30, 
+        num_layers_to_unfreeze=config.NUM_LAYERS_UNFREEZE, 
         learning_rate=config.LEARNING_RATE_STAGE2
     )
 

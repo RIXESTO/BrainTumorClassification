@@ -15,9 +15,9 @@ os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 # Dataset & Image Specs
-IMG_SIZE = (224, 224)
-IMG_SHAPE = (224, 224, 3)
-BATCH_SIZE = 32
+IMG_SIZE = (299, 299)
+IMG_SHAPE = (299, 299, 3)
+BATCH_SIZE = 16
 SEED = 42
 
 # Classes
@@ -25,10 +25,13 @@ CLASS_NAMES = ['glioma_tumor', 'meningioma_tumor', 'no_tumor', 'pituitary_tumor'
 NUM_CLASSES = len(CLASS_NAMES)
 
 # Hyperparameters for Two-Stage Fine-Tuning
-WARMUP_EPOCHS = 5        # Stage 1: Backbone frozen, train custom classification head
-FINETUNE_EPOCHS = 15     # Stage 2: Unfreeze top layers of backbone, fine-tune end-to-end
-LEARNING_RATE_STAGE1 = 1e-4
-LEARNING_RATE_STAGE2 = 1e-5
+WARMUP_EPOCHS = 10       # Stage 1: Backbone frozen, train custom classification head
+FINETUNE_EPOCHS = 35     # Stage 2: Unfreeze top layers of backbone, fine-tune end-to-end
+LEARNING_RATE_STAGE1 = 0.001  # Adamax default from 99% notebook
+LEARNING_RATE_STAGE2 = 0.0002 # Adamax fine-tuning rate
 
-# Backbone Choice: 'EfficientNetB0' or 'ResNet50V2'
-DEFAULT_BACKBONE = 'EfficientNetB0'
+# Fine-tuning depth
+NUM_LAYERS_UNFREEZE = 100  # Unfreeze top 100 layers for deep Xception adaptation
+
+# Backbone Choice: 'EfficientNetB0', 'ResNet50V2', or 'Xception'
+DEFAULT_BACKBONE = 'Xception'

@@ -1,5 +1,5 @@
 {
-    "best_val_accuracy": 0.6167247295379639,
-    "best_val_loss": 0.8604989051818848,
-    "total_epochs_trained": 3
+    "best_val_accuracy": 0.9651567935943604,
+    "best_val_loss": 0.11137794703245163,
+    "total_epochs_trained": 24
 }

@@ -1,48 +1,48 @@
 {
-    "test_accuracy": 0.43654823303222656,
-    "test_loss": 1.318816065788269,
+    "test_accuracy": 0.8020304441452026,
+    "test_loss": 1.5811411142349243,
     "roc_auc_per_class": {
-        "glioma_tumor": 0.5738095238095239,
-        "meningioma_tumor": 0.6715910861773413,
-        "no_tumor": 0.8183226231669138,
-        "pituitary_tumor": 0.9068834459459459
+        "glioma_tumor": 0.8939455782312924,
+        "meningioma_tumor": 0.9772479351721989,
+        "no_tumor": 0.9862415554457077,
+        "pituitary_tumor": 0.9668074324324325
     },
     "classification_report": {
         "glioma_tumor": {
-            "precision": 0.35714285714285715,
-            "recall": 0.1,
-            "f1-score": 0.15625,
+            "precision": 1.0,
+            "recall": 0.32,
+            "f1-score": 0.48484848484848486,
             "support": 100.0
         },
         "meningioma_tumor": {
-            "precision": 0.3698630136986301,
-            "recall": 0.23478260869565218,
-            "f1-score": 0.2872340425531915,
+            "precision": 0.6666666666666666,
+            "recall": 0.991304347826087,
+            "f1-score": 0.7972027972027972,
             "support": 115.0
         },
         "no_tumor": {
-            "precision": 0.5107913669064749,
-            "recall": 0.6761904761904762,
-            "f1-score": 0.5819672131147541,
+            "precision": 0.8333333333333334,
+            "recall": 1.0,
+            "f1-score": 0.9090909090909091,
             "support": 105.0
         },
         "pituitary_tumor": {
-            "precision": 0.4155844155844156,
-            "recall": 0.8648648648648649,
-            "f1-score": 0.5614035087719298,
+            "precision": 1.0,
+            "recall": 0.8783783783783784,
+            "f1-score": 0.935251798561151,
             "support": 74.0
         },
-        "accuracy": 0.4365482233502538,
+        "accuracy": 0.8020304568527918,
         "macro avg": {
-            "precision": 0.4133454133330945,
-            "recall": 0.46895948743774835,
-            "f1-score": 0.39671369110996885,
+            "precision": 0.875,
+            "recall": 0.7974206815511163,
+            "f1-score": 0.7815984974258355,
             "support": 394.0
         },
         "weighted avg": {
-            "precision": 0.41277886438592587,
-            "recall": 0.4365482233502538,
-            "f1-score": 0.38402876121773866,
+            "precision": 0.8582910321489001,
+            "recall": 0.8020304568527918,
+            "f1-score": 0.7736709358153319,
             "support": 394.0
         }
     }

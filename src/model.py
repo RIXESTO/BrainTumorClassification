@@ -36,31 +36,52 @@ def build_transfer_model(config, backbone_type=None):
             weights='imagenet',
             input_tensor=x
         )
+    elif backbone_type == 'Xception':
+        # Xception expects [-1, 1] scaling
+        x = tf.keras.applications.xception.preprocess_input(x)
+        backbone = tf.keras.applications.Xception(
+            include_top=False,
+            weights='imagenet',
+            input_tensor=x
+        )
     else:
         raise ValueError(f"Unsupported backbone: {backbone_type}")
 
     # Freeze backbone initially for Stage 1 (Warmup)
     backbone.trainable = False
-    
-    # Custom Medical Classification Head
+    # Custom Medical Classification Head (Heavy regularization for domain shift)
     features = backbone.output
-    pooled = tf.keras.layers.GlobalAveragePooling2D(name="global_avg_pool")(features)
-    bn = tf.keras.layers.BatchNormalization(name="head_bn")(pooled)
-    drop1 = tf.keras.layers.Dropout(0.5, name="head_dropout_1")(bn)
-    dense1 = tf.keras.layers.Dense(256, activation="relu", name="head_dense_256")(drop1)
-    drop2 = tf.keras.layers.Dropout(0.3, name="head_dropout_2")(dense1)
-    outputs = tf.keras.layers.Dense(
-        config.NUM_CLASSES,
-        activation="softmax",
-        dtype="float32",
-        name="predictions"
-    )(drop2)
+    if backbone_type == 'Xception':
+        # Replicate 99% accuracy notebook architecture: GlobalMaxPooling2D + lighter 128 head
+        pooled = tf.keras.layers.GlobalMaxPooling2D(name="global_max_pool")(features)
+        drop1 = tf.keras.layers.Dropout(0.3, name="head_dropout_1")(pooled)
+        dense1 = tf.keras.layers.Dense(128, activation="relu", name="head_dense_128")(drop1)
+        drop2 = tf.keras.layers.Dropout(0.25, name="head_dropout_2")(dense1)
+        outputs = tf.keras.layers.Dense(
+            config.NUM_CLASSES,
+            activation="softmax",
+            dtype="float32",
+            name="predictions"
+        )(drop2)
+    else:
+        pooled = tf.keras.layers.GlobalAveragePooling2D(name="global_avg_pool")(features)
+        bn = tf.keras.layers.BatchNormalization(name="head_bn")(pooled)
+        drop1 = tf.keras.layers.Dropout(0.5, name="head_dropout_1")(bn)
+        dense1 = tf.keras.layers.Dense(256, activation="relu", name="head_dense_256")(drop1)
+        drop2 = tf.keras.layers.Dropout(0.3, name="head_dropout_2")(dense1)
+        outputs = tf.keras.layers.Dense(
+            config.NUM_CLASSES,
+            activation="softmax",
+            dtype="float32",
+            name="predictions"
+        )(drop2)
     
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name=f"BrainTumor_{backbone_type}")
     
     # Compile for Stage 1
+    optimizer = tf.keras.optimizers.Adamax(learning_rate=config.LEARNING_RATE_STAGE1) if backbone_type == 'Xception' else tf.keras.optimizers.Adam(learning_rate=config.LEARNING_RATE_STAGE1)
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=config.LEARNING_RATE_STAGE1),
+        optimizer=optimizer,
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
         metrics=["accuracy"]
     )
@@ -88,8 +109,9 @@ def unfreeze_backbone_for_finetuning(model, backbone, num_layers_to_unfreeze=30,
             bn_frozen_count += 1
             
     # Re-compile model with Stage 2 lower learning rate
+    optimizer = tf.keras.optimizers.Adamax(learning_rate=learning_rate) if 'Xception' in model.name else tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        optimizer=optimizer,
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
         metrics=["accuracy"]
     )

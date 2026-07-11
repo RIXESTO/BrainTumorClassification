@@ -32,12 +32,32 @@ def evaluate_model(model_path=None):
 
     _, _, test_ds, class_names = get_data_loaders(config)
     
-    logger.info("🧪 Evaluating model predictions across the independent Test Dataset (394 images)...")
+    logger.info("🧪 Evaluating model with Test-Time Augmentation (TTA) across the independent Test Dataset (394 images)...")
     y_true = []
     y_pred_probs = []
 
+    # TTA augmentations: original + flipped + brightness variants
+    def tta_predict(model, images, n_augments=5):
+        """Average predictions over original + augmented variants for robust inference."""
+        all_preds = []
+        # 1. Original
+        all_preds.append(model.predict(images, verbose=0))
+        # 2. Horizontal flip
+        all_preds.append(model.predict(tf.image.flip_left_right(images), verbose=0))
+        # 3. Slight brightness increase (simulates brighter test images)
+        bright_up = tf.clip_by_value(images * 1.15, 0, 255)
+        all_preds.append(model.predict(bright_up, verbose=0))
+        # 4. Slight brightness decrease
+        bright_down = tf.clip_by_value(images * 0.85, 0, 255)
+        all_preds.append(model.predict(bright_down, verbose=0))
+        # 5. Slight contrast adjustment
+        mean = tf.reduce_mean(images, axis=[1, 2, 3], keepdims=True)
+        contrast = tf.clip_by_value((images - mean) * 1.1 + mean, 0, 255)
+        all_preds.append(model.predict(contrast, verbose=0))
+        return np.mean(all_preds, axis=0)
+
     for images, labels in test_ds:
-        preds = model.predict(images, verbose=0)
+        preds = tta_predict(model, images)
         y_true.extend(labels.numpy())
         y_pred_probs.extend(preds)
 
