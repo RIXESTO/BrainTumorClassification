@@ -156,8 +156,6 @@ def main():
                     batch_tensors = []
                     for v in variants:
                         vt = tf.cast(np.expand_dims(v, axis=0), tf.float32)
-                        if config.DEFAULT_BACKBONE == 'Xception':
-                            vt = tf.keras.applications.xception.preprocess_input(vt)
                         batch_tensors.append(vt[0])
                     batch_stack = tf.stack(batch_tensors, axis=0)
                     tta_preds = model.predict(batch_stack, verbose=0)
